@@ -1,5 +1,7 @@
 # Lepton Lab
 
+Start here: [Step-by-step installation and how to run it afterwards](INSTALL.md).
+
 A Raspberry Pi desktop application for viewing, recording and comparing thermal-camera data from a FLIR Lepton 3.5.
 
 This project turns the camera into a small monitoring and measurement tool: watch a live thermal image, select an area, record its signal, and compare changes against an averaged reference scene. It is useful for exploring how hot or cold regions change over time.
