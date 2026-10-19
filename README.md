@@ -162,4 +162,4 @@ This is an experimental personal project, not a validated temperature-measuremen
 | `palettes.json` | Colour lookup tables |
 | `tests/` | Hardware-free checks and GUI smoke test |
 
-The ironblack and grayscale palettes come from GroupGets / Pure Engineering LLC. Their notice is preserved in [GROUPGETS-LICENSE.txt](GROUPGETS-LICENSE.txt); it applies to the attributed third-party material. No additional project-wide open-source licence is granted by this import. Lepton Lab is not an official FLIR or GroupGets product.
+The ironblack and grayscale palettes come from GroupGets / Pure Engineering LLC. Their notice is preserved in [GROUPGETS-LICENSE.txt](GROUPGETS-LICENSE.txt); it applies to the attributed third-party material. Original Lepton Lab contributions are licensed under [BSD-2-Clause](LICENSE). Third-party terms remain in force; see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) and [FLIR-SDK-NOTICES.txt](FLIR-SDK-NOTICES.txt). Lepton Lab is not an official FLIR or GroupGets product.

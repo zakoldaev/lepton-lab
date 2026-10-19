@@ -2,6 +2,9 @@
 
 Register addresses, command IDs and word counts follow the FLIR Lepton SDK
 LEPTON_SYS and LEPTON_I2C_Protocol. Linux I2C transactions follow raspi_I2C.
+Source references and retained upstream notices: THIRD_PARTY_NOTICES.md and
+FLIR-SDK-NOTICES.txt. Original contributions: BSD-2-Clause (see LICENSE);
+third-party material retains its own terms.
 """
 import fcntl
 import os

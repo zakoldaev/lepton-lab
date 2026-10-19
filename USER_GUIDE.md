@@ -122,3 +122,11 @@ No internet service is used by the viewer. Data stays in the folder you choose.
 ## Palette attribution
 
 `palettes.json` contains the ironblack and grayscale lookup tables from GroupGets' `LeptonModule/software/raspberrypi_video/Palettes.cpp`. Copyright (c) 2014, Pure Engineering LLC. The redistribution notice and disclaimer are included in `GROUPGETS-LICENSE.txt`. Lepton Lab is not an official GroupGets or FLIR product.
+
+## Licensing
+
+Original contributions are covered by [LICENSE](LICENSE). Palette attribution is
+preserved in [GROUPGETS-LICENSE.txt](GROUPGETS-LICENSE.txt). See
+[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) for FFC source references,
+[FLIR-SDK-NOTICES.txt](FLIR-SDK-NOTICES.txt) for their retained notices, and
+requirements when redistributing source or binaries.
