@@ -1,0 +1,9 @@
+__pycache__/
+*.py[cod]
+.venv/
+lepton_capture
+LeptonRecordings/
+frames.raw
+frames.csv
+baseline.npy
+.DS_Store
