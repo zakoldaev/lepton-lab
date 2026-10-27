@@ -4,6 +4,12 @@ This guide is for a FLIR Lepton 3.5 in the FLIR Lepton Breakout Board v2.0, part
 
 The connections below use the same physical positions on the 40-pin GPIO header of both Pi models. This camera connects through GPIO, not the Pi's ribbon-camera connector.
 
+## Wiring diagram
+
+![Lepton breakout to Raspberry Pi 4 Model B and Pi 5: seven connections and numbered connector maps](assets/lepton-pi-wiring.svg)
+
+[Open the full-size vector image](assets/lepton-pi-wiring.svg). The connector maps are schematic; locate pin 1 on the actual board before counting. The Pi header is shown from the component side, rotated so pin 1 is at the lower left.
+
 ## Before connecting
 
 Shut down the Pi and disconnect its power. Identify pin 1 on each connector using the board markings and manufacturer drawing; do not count from an arbitrary corner or a rotated photograph.
@@ -64,3 +70,7 @@ Defaults: SPI mode 3 at 20 MHz, `/dev/spidev0.0`; I²C `/dev/i2c-1`, camera addr
 - [FLIR Raspberry Pi connection guide](https://github.com/FLIR/Lepton/blob/main/docs/RaspberryPiGuide.md): J2 signal connections and J3 power connector identification. Its GPIO labels are logical GPIO numbers; the table above converts them to physical header positions.
 - FLIR, “Lepton Camera Breakout Board v2.0,” part 250-0577-00, January 2021 datasheet, page 2: connector pinout, input-voltage range and R120 diode note.
 - [Raspberry Pi GPIO documentation](https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#gpio): physical pin numbering and SPI signals.
+
+## Diagram credit
+
+The wiring illustration is original artwork created for Lepton Lab, based on the pin assignments in the manufacturer references above. It does not reproduce the supplied internet photographs or Raspberry Pi board artwork. See [the image source notes](assets/README.md). The repository's [licence](LICENSE) covers this original illustration.

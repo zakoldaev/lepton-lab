@@ -8,6 +8,10 @@ A desktop application for viewing, recording and comparing FLIR Lepton 3.5 therm
 2. [Install and run](INSTALL.md).
 3. [Use the controls and read recordings](USER_GUIDE.md).
 
+## Connection overview
+
+[![Lepton to Raspberry Pi wiring diagram](assets/lepton-pi-wiring.svg)](WIRING.md)
+
 ## What it does
 
 - Live 160 × 120 thermal image with ironblack, grayscale or heat colours.
