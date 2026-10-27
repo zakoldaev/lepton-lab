@@ -1,97 +1,139 @@
-# Install and run Lepton Lab
+# Install and run
 
-These instructions are for Raspberry Pi 5 with Raspberry Pi OS Desktop and an already connected, working Lepton 3.5 camera. Use a terminal inside the Pi desktop, locally or through Raspberry Pi Connect. Plain SSH will usually not display the application window.
+For Raspberry Pi 4 Model B and Raspberry Pi 5 running Raspberry Pi OS Desktop. Use a terminal inside the Pi desktop, locally or through Raspberry Pi Connect. A plain SSH session does not normally provide a graphical display.
 
-## A. Your existing installation
+## 1. Connect the camera
 
-If you already installed the `lepton-lab-colours.tar.gz` archive, you do not need to install it again. Close other camera viewers, open Terminal on the Pi desktop and run:
+Follow [WIRING.md](WIRING.md) with the Pi powered off. The same physical header positions apply to both Pi models.
+
+## 2. Enable SPI and I²C
+
+Boot the Pi and run:
 
 ```bash
-cd ~/lepton-lab
-bash start.sh
+sudo raspi-config
 ```
 
-This starts your existing copy. It does not download updates from GitHub.
+Under Interface Options, enable SPI and I2C. Finish, then reboot:
 
-## B. First installation from GitHub — download method
+```bash
+sudo reboot
+```
 
-### 1. Download
+After logging back in, check:
 
-On the Raspberry Pi, open a browser and sign in to GitHub with an account that can access this private repository:
+```bash
+ls -l /dev/spidev0* /dev/i2c-1
+groups
+```
 
-https://github.com/zakoldaev/lepton-lab
+Expect `/dev/spidev0.0`, `/dev/spidev0.1` and `/dev/i2c-1`. Your account should belong to `spi` and `i2c`. If either group is missing:
 
-Click **Code → Download ZIP**. Save the ZIP in your **Downloads** folder. The expected filename is `lepton-lab-main.zip`. You can also download it on another computer and copy it to the Pi's Downloads folder.
+```bash
+sudo usermod -aG spi,i2c "$USER"
+sudo reboot
+```
 
-### 2. Extract into a separate folder
+The installer does not enable these interfaces or change camera output settings.
 
-Open Terminal on the Pi desktop and run these commands one line at a time:
+## 3. Download and install once
 
 ```bash
 sudo apt update
-sudo apt install -y unzip
-mkdir -p ~/LeptonGitHub
-unzip -n ~/Downloads/lepton-lab-main.zip -d ~/LeptonGitHub
-cd ~/LeptonGitHub/lepton-lab-main
-```
-
-If the download has a different filename, replace `lepton-lab-main.zip` with that name. This directory keeps the GitHub copy separate from an existing `~/lepton-lab` installation. These are first-install instructions: `unzip -n` deliberately does not overwrite existing files and is not an update command.
-
-### 3. Install once
-
-From that same terminal:
-
-```bash
+sudo apt install -y git
+cd ~
+git clone https://github.com/zakoldaev/lepton-lab.git lepton-lab-github
+cd ~/lepton-lab-github
 bash install.sh
 ```
 
-Internet access is needed to install packages. The script installs Python dependencies and the compiler, builds the camera capture program, and runs hardware-free checks. Wait until you see **Installation complete**. If an error appears, save the terminal output rather than continuing as if installation succeeded.
+Wait for `Installation complete`. The script installs dependencies, compiles the capture program and runs hardware-free checks. If installation fails, resolve the terminal error before starting.
 
-### 4. Start the camera
+Only Git is needed; the GitHub CLI (`gh`) is not required. A public repository can be cloned without signing in. If the repository is made private, authenticated Git access will be required.
 
-Close the old Lepton viewer and any other program using the camera. Then run:
+If `~/lepton-lab-github` already exists, use your existing installation or the update instructions below; do not clone over it.
+
+## 4. Start the camera
+
+Close other Lepton viewers, then run:
 
 ```bash
+cd ~/lepton-lab-github
 bash start.sh
 ```
 
-The application window should open on the Pi desktop.
-
-## C. Run it again later
-
-After restarting the Pi, or after closing the application, open Terminal on the Pi desktop and run:
+The window should show a changing thermal image. The default chip select is CE0, physical pin 24. If you deliberately wired CS to CE1, physical pin 26, use:
 
 ```bash
-cd ~/LeptonGitHub/lepton-lab-main
-bash start.sh
+bash start.sh --device /dev/spidev0.1
 ```
 
-No repeat download, extraction or installation is needed. Use these commands for the GitHub ZIP copy; use section A for the older archive copy. Do not run both at the same time.
-
-## D. Try the interface without the camera
-
-After completing installation:
+For a demonstration without hardware:
 
 ```bash
-cd ~/LeptonGitHub/lepton-lab-main
 bash start.sh --demo
 ```
 
-This uses simulated data. Close the demo window and run `bash start.sh` without `--demo` to use the real camera.
+## Run again later
 
-## E. Finish a session
+After closing the app or restarting the Pi:
 
-1. If recording, click **Stop recording**.
-2. Close the application window.
-3. Recordings remain in `~/LeptonRecordings/`, unless you selected a different destination.
+```bash
+cd ~/lepton-lab-github
+bash start.sh
+```
 
-For controls, baseline capture and reading recordings, see [README.md](README.md#first-recording).
+Use the CE1 option every time if that is your wiring. No repeat installation is needed. Stop recording and close the application before shutting down.
 
-## If it does not work
+## Update an existing Git installation
 
-- **No such file or directory:** check that the ZIP was downloaded and that you are using the correct extracted folder name.
-- **No window / display error:** open Terminal inside the Pi desktop, not a plain SSH connection.
-- **No camera frames:** close other camera viewers and confirm the original camera viewer still works. SPI and I²C must already be enabled; this installer does not configure wiring or camera modes.
-- **Permission denied for SPI or I²C:** see [the user guide](USER_GUIDE.md#camera-connection-and-troubleshooting). Do not start the GUI with `sudo`.
+Close the viewer, then:
 
-For a Git-based installation and subsequent Git updates, see [README.md](README.md#or-use-git). ZIP updates should be extracted to a new folder so that local edits are preserved.
+```bash
+cd ~/lepton-lab-github
+git pull --ff-only
+bash install.sh
+bash start.sh
+```
+
+If Git reports local changes or conflicts, preserve those edits before updating.
+
+## Alternative: ZIP or older archive
+
+You can use GitHub's Code → Download ZIP, extract it, open a terminal in the extracted folder and run `bash install.sh`, then `bash start.sh`. Use that extracted folder for later launches. ZIP installations cannot use `git pull`; extract a new download into a separate folder.
+
+If you still use the original archive in `~/lepton-lab`, run `cd ~/lepton-lab` followed by `bash start.sh`. That copy is separate from `~/lepton-lab-github`.
+
+## Troubleshooting
+
+### Window opens but no image
+
+1. Close all camera viewers. Check for a leftover capture process with `pgrep -af lepton_capture`.
+2. Check that CS matches the selected device: physical pin 24 for `spidev0.0`, or pin 26 for `spidev0.1`.
+3. Shut down and disconnect power before checking loose wires, common ground and board power. Check against [the wiring table](WIRING.md). Reconnecting the wiring resolved this symptom on the author's Pi 4.
+4. Confirm the device files and group membership using step 2.
+5. With the GUI closed, run a 15-second capture diagnostic:
+
+```bash
+cd ~/lepton-lab-github
+timeout 15s ./lepton_capture /dev/spidev0.0 > /dev/null
+```
+
+Substitute `/dev/spidev0.1` for CE1. The command hides binary frame data but leaves errors visible. Timeout exit status 124 is expected. Repeated `No complete frame` messages mean complete frames are not being assembled; they do not identify a single cause or prove camera failure. No messages alone do not prove that frames arrived.
+
+The capture program expects Lepton 3.x 160 × 120 raw video with telemetry disabled. It does not change those settings.
+
+### Other problems
+
+| Symptom | Action |
+| --- | --- |
+| Permission denied for SPI or I²C | Repeat the group check in step 2 and reboot after changing membership. Do not run the GUI with sudo. |
+| No window / display error | Launch from a terminal inside the Pi desktop. |
+| No such file or directory | Check the installation folder and whether install.sh completed. |
+| FFC fails but the image works | Check SDA, SCL and I²C access; see the user guide. |
+| Background colours change | Turn off Auto contrast to hold the display range. |
+| Baseline comparison suddenly shifts | Capture a fresh baseline after FFC, movement or camera-setting changes. |
+
+See [USER_GUIDE.md](USER_GUIDE.md) for controls and recording details.
+
+Interface configuration reference: [Raspberry Pi documentation](https://www.raspberrypi.com/documentation/computers/configuration.html).

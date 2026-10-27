@@ -1,33 +1,6 @@
-# Lepton Lab
+# Using Lepton Lab
 
-A desktop viewer for your Lepton 3.5 on Raspberry Pi 5: raw recording, a mouse-selected measurement area, and an averaged reference baseline.
-
-## Install on the Pi
-
-Extract this folder on your Pi, open a terminal in it, and run:
-
-```bash
-bash install.sh
-```
-
-The installer installs standard Raspberry Pi OS packages and builds the capture program. It does not change boot configuration, camera calibration, or your existing LeptonModule viewer. I2C and SPI should already be enabled from the working camera setup.
-
-## Start
-
-Close the old camera viewer first: only one program should read the SPI camera at a time. Open a terminal **inside the Pi desktop**, either locally or through Raspberry Pi Connect:
-
-```bash
-cd ~/lepton-lab
-bash start.sh
-```
-
-The window appears on the Pi desktop. An ordinary SSH session does not provide a graphical display. If you extracted elsewhere, use that folder instead.
-
-For a hardware-free demonstration:
-
-```bash
-bash start.sh --demo
-```
+For wiring and setup, see [WIRING.md](WIRING.md) and [INSTALL.md](INSTALL.md). These instructions apply to Raspberry Pi 4 Model B and Pi 5.
 
 ## Controls
 
@@ -41,15 +14,13 @@ bash start.sh --demo
 
 The live image defaults to **GroupGets ironblack**, using the exact RGB palette from the original GroupGets viewer, and **Auto contrast**. The range is recalculated from each frame's nonzero minimum and maximum. Adding a hot object can therefore change the background colour even if its raw values stay constant. Clear `Auto contrast` to hold the current range. You can also choose grayscale or the earlier Lepton Lab heat palette. These controls change only the display; raw recordings and measurements are unaffected. The baseline difference view retains its independent fixed blue/white/red scale.
 
-The original GroupGets revision contains a minimum-range reset bug, so Lepton Lab does not reproduce its accidental history-dependent minimum. The default uses the intended per-frame min/max scaling and handles uniform images without dividing by zero. Exact colour equality with that unmodified revision is not guaranteed.
-
 ## Units and FFC
 
 Measurements are deliberately labelled **raw counts**. The app does not read or change AGC, radiometry, gain, TLinear resolution, or telemetry configuration. Do not label these values degrees Celsius without first verifying all relevant camera settings. FLIR radiometric/TLinear output can be converted later when its scale and mode are known; a colour screenshot cannot supply those settings.
 
 Your camera's existing automatic shutter/FFC behaviour continues. FFC, gain changes, scene movement, and camera temperature drift can change the reference comparison. **Recapture the baseline after a known FFC or settings change.** This version does not log automatic FFC events. Avoid an FFC during the 30-frame baseline capture. It averages received frames, which can include a frozen frame during a shutter event.
 
-The FFC button uses `/dev/i2c-1`, address `0x2a`. No extra Python package is needed. If the button reports I2C permission denied, run `sudo usermod -aG i2c romaed`, then log out of the Pi desktop and back in. A different control bus can be selected with `bash start.sh --i2c-device /dev/i2c-N`. Do not run another Lepton control program concurrently. FFC protocol tests use a simulated camera; a physical shutter test on your Pi remains necessary.
+The FFC button uses `/dev/i2c-1`, address `0x2a`. A different bus can be selected with `bash start.sh --i2c-device /dev/i2c-N`. Do not run another Lepton control program concurrently. For permission errors, see [INSTALL.md](INSTALL.md).
 
 For a change experiment, take a baseline of the actual initial scene. If you cover the lens, the baseline will instead describe the cover, so uncovering it will produce a difference across the new scene. A uniform cover is not an absolute temperature calibration.
 
@@ -89,29 +60,15 @@ change = first_frame.astype(np.float32) - baseline
 
 `load_session` uses memory mapping rather than loading a whole recording into RAM. It ignores incomplete trailing frames after an interrupted write. Only completed frame/index pairs should be analysed after an unexpected power loss. `metadata.json` is finalized when recording stops.
 
-## Camera connection and troubleshooting
+## Capture limitations
 
-Default input is `/dev/spidev0.0`, CE0, SPI mode 3 at 20 MHz, matching the current GroupGets viewer source used in your setup. Lepton 3.x 160×120 raw video with **telemetry disabled** is required. The assembler accepts only ordered packets and segments 1–4. It does not check packet CRC; this is an experiment viewer, not a validated acquisition instrument.
+The capture bridge uses SPI mode 3 at 20 MHz and requires Lepton 3.x 160 × 120 raw video with telemetry disabled. It accepts only ordered packets and segments 1–4, but does not check packet CRC. It never sends an I²C reboot or calibration command while recovering SPI synchronisation.
 
-This is a new standalone capture bridge using the same SPI transport and pixel layout as the working viewer, not a patch to the original. Camera timing on the Pi 5 still requires on-device validation. The program never sends an I2C reboot or calibration command while recovering SPI synchronisation.
-
-If no complete frames arrive: close other camera programs, confirm the SPI device and CS wiring, and verify that the original viewer still works. The status bar reports SPI errors and stale frames. CE1 wiring requires:
-
-```bash
-bash start.sh --device /dev/spidev0.1
-```
-
-If access is denied, inspect membership with `groups`. If needed, add your Pi account to the SPI group and then log out of the Pi desktop and log back in:
-
-```bash
-sudo usermod -aG spi romaed
-```
-
-Do not run the graphical viewer as root. If a desktop display error appears, run from a terminal inside the Pi desktop, not plain SSH.
+See [INSTALL.md](INSTALL.md#troubleshooting) for missing frames, interface permissions and desktop display problems.
 
 ## Validation and references
 
-Hardware-free tests cover packet order, missing segments, pixel placement, endianness, truncated streams, baseline averaging, negative differences, ROI boundaries, lossless storage, and interrupted recordings. Demo mode exercises the same binary frame bridge and analysis pipeline without SPI. No successful test on your physical Pi is claimed.
+Hardware-free tests cover packet order, missing segments, pixel placement, endianness, truncated streams, baseline averaging, negative differences, ROI boundaries, lossless storage, and interrupted recordings. Demo mode exercises the same binary frame bridge and analysis pipeline without SPI. Live video on the author's Pi 4 Model B was confirmed on 27 October 2026. Hardware-free tests do not validate physical FFC operation or temperature accuracy.
 
 - FLIR interfaces: https://oem.flir.com/learn/thermal-integration-made-easy/spi-and-i2c-with-lepton/
 - FLIR radiometry: https://oem.flir.com/learn/thermal-integration-made-easy/radiometry-with-lepton/
